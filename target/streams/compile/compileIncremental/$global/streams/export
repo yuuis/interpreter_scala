@@ -1,0 +1,1 @@
+scalac -classpath /Users/yuuis/tut/after_semester_3/practical_programming/interpreter_scala/target/scala-2.12/classes -bootclasspath /Users/yuuis/.sbt/boot/scala-2.12.6/lib/scala-library.jar /Users/yuuis/tut/after_semester_3/practical_programming/interpreter_scala/src/main/scala/Main.scala
