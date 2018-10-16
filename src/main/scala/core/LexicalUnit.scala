@@ -1,20 +1,13 @@
-class LexicalUnit = {
-  val type: LexicalType
-  val value: Value
-  val link: LexicalUnit
+package main.scala.core
 
-  def LexicalUnit(thisType: LexicalType) = type = thisType
+class LexicalUnit(val lexicalType: Option[LexicalType], val value: Option[Value]) {
 
-  def LexicalUnit(thisType: LexicalType, thisValue: Value) = {
-    type = thisType
-    value = thisValue
-  }
   def toString(): String = {
     type match {
-      case LITERAL => "LITERAL:\t" + value.getString;
-	    case NAME => "NAME:\t" + value.getString;
-	    case DOUBLEVAL => "DOUBLEVAL:\t" + value.getString;
-	    case INTVAL => "INTVAL:\t" + value.getString;
+      case LITERAL => "LITERAL:\t" + value.map(_.getString);
+	    case NAME => "NAME:\t" + value.map(_.getString);
+	    case DOUBLEVAL => "DOUBLEVAL:\t" + value.map(_.getString);
+	    case INTVAL => "INTVAL:\t" + value.map(_.getString);
 	    case IF => "IF"
 	    case THEN => "THEN"
 	    case ELSE => "ELSE"

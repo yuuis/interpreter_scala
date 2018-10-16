@@ -1,4 +1,6 @@
-seald abstract class ValueType
+package main.scala.core
+
+abstract class ValueType
 
 case object VOID extends ValueType
 case object INTEGER extends ValueType

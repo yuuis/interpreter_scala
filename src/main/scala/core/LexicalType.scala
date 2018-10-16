@@ -1,4 +1,6 @@
-seald abstract class LexicalType
+package main.scala.core
+
+abstract class LexicalType
 
 case object LITERAL extends LexicalType
 case object INTVAL extends LexicalType

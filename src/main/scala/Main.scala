@@ -1,6 +1,6 @@
+import main.scala.core.LexicalAnalyzerImpl
+
 import scala.io.Source
-import scala.util.control.Exception._ 
-import LexicalAnalyzerImpl
 
 object Main extends App {
   try {
