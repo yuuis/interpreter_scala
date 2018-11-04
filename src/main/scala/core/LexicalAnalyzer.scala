@@ -1,8 +1,6 @@
 package main.scala.core
 
 import java.io.{File, FileReader, PushbackReader}
-
-import scala.collection.immutable
 import util.control.Breaks._
 
 trait LexicalAnalyzer {
@@ -17,7 +15,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
   }
 
   def get(): LexicalUnit = {
-    val hoge = for (i <- 1 to 100) yield {
+    for (i <- 1 to 100) yield {
       val ci = reader.read()
 
       if(ci < 0) new LexicalUnit(EOF, None)
@@ -41,7 +39,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
   private def getString(): LexicalUnit = {
     var target = ""
 
-    for(i <- 1 to 100) {
+    for(s <- 1 to 100) {
       val ci = reader.read()
       val c = ci.toChar
 

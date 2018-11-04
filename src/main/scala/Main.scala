@@ -9,12 +9,11 @@ object Main extends App {
     val source = Source.fromFile(SOURCE_PATH)
     val lexicalAnalyzer =  new LexicalAnalyzerImpl(SOURCE_PATH)
 
-    source.map { c =>
+    for(i <- 1 to 100) {
       val lexicalUnit = lexicalAnalyzer.get()
       if(lexicalUnit.getType == EOF) break()
-      println(lexicalUnit)
+      else println(lexicalUnit)
     }
-    source.foreach(c => print(c))
   } catch {
     case e: Exception => println("io error occured.")
   }
