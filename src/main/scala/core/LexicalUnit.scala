@@ -2,11 +2,14 @@ package main.scala.core
 
 class LexicalUnit(val lexicalType: LexicalType, val value: Option[Value]) {
 
+  def this(lexicalType: Option[LexicalType]) {
+    this(lexicalType.get, None)
+  }
   def getType: Option[Value] = return value
   def getValue: LexicalType = return lexicalType
 
-  def toString(): String = {
-    type match {
+  override def toString(): String = {
+    lexicalType match {
       case LITERAL => "LITERAL:\t" + value.map(_.getString);
       case NAME => "NAME:\t" + value.map(_.getString);
       case DOUBLEVAL => "DOUBLEVAL:\t" + value.map(_.getString);
