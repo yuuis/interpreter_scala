@@ -15,23 +15,21 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
   }
 
   def get(): LexicalUnit = {
-    for (i <- 1 to 100) yield {
-      val ci = reader.read()
+    val ci = reader.read()
 
-      if(ci < 0) new LexicalUnit(EOF, None)
-      else {
-        val c = ci.toChar
-        c match {
-          case u if(c == ' ' || c == '\t') =>
-          case a if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z')) =>
-            reader.unread(ci)
-            return getString()
-          case n if(c >= '0' && c <= '9') =>
-            reader.unread(ci)
-            return getNumber()
-          case l if(c == '"') => return getLiteral()
-          case s if(Symbol.map.get(c.toString).nonEmpty) => return getSymbol(s)
-        }
+    if(ci < 0) new LexicalUnit(EOF, None)
+    else {
+      val c = ci.toChar
+      c match {
+//        case u if(c == ' ' || c == '\t') =>
+        case a if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z')) =>
+          reader.unread(ci)
+          return getString()
+        case n if(c >= '0' && c <= '9') =>
+          reader.unread(ci)
+          return getNumber()
+        case l if(c == '"') => return getLiteral()
+        case s if(Symbol.map.get(c.toString).nonEmpty) => return getSymbol(s)
       }
     }
   }
@@ -39,7 +37,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
   private def getString(): LexicalUnit = {
     var target = ""
 
-    for(s <- 1 to 100) {
+    breakable( for(i <- 1 to 100) {
       val ci = reader.read()
       val c = ci.toChar
 
@@ -49,7 +47,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
           reader.unread(ci)
           break()
       }
-    }
+    })
     ReservedWord.map.get(target).fold(new LexicalUnit(NAME, Some(new ValueImpl(target))))( word =>
       new LexicalUnit(word, None)
     )
@@ -59,7 +57,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
     var target = ""
     var decimalFlag = false
 
-    for(i <- 1 to 100) {
+    breakable( for(i <- 1 to 100) {
       val ci = reader.read()
       val c = ci.toChar
 
@@ -71,7 +69,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
         case '.' if(decimalFlag) => throw new Exception("syntax error")
         case _ => break()
       }
-    }
+    })
     if(decimalFlag) new LexicalUnit(DOUBLEVAL, Some(new ValueImpl(target.toDouble)))
     else new LexicalUnit(INTVAL, Some(new ValueImpl((target.toInt))))
   }
@@ -79,7 +77,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
   private def getLiteral(): LexicalUnit = {
     var target = ""
 
-    for(i <- 1 to 100) yield {
+    breakable( for(i <- 1 to 100) {
       val ci = reader.read
       val c = ci.toChar
 
@@ -87,7 +85,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
         case '"' => break()
         case _ => target += c
       }
-    }
+    })
     new LexicalUnit(LITERAL, Some(new ValueImpl(target)))
   }
 
