@@ -11,10 +11,8 @@ object Main extends App {
 
     breakable( for(i <- 1 to 100) {
       val lexicalUnit = lexicalAnalyzer.get()
+      println((lexicalUnit))
       if(lexicalUnit.getType == EOF) break()
-      else println(lexicalUnit)
     })
-  } catch {
-    case e: Exception => println("io error occured.")
   }
 }
