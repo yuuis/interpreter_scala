@@ -16,12 +16,11 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
 
   def get(): LexicalUnit = {
     val ci = reader.read()
-
-    if(ci < 0) new LexicalUnit(EOF, None)
+    if(ci < 0 || ci == 65535) new LexicalUnit(EOF, None)
     else {
       val c = ci.toChar
       c match {
-//        case u if(c == ' ' || c == '\t') =>
+        case u if(c == ' ' || c == '\t') => get()
         case a if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z')) =>
           reader.unread(ci)
           return getString()
@@ -131,6 +130,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
       "UNTIL" -> UNTIL,
       "LOOP" -> LOOP,
       "TO" -> TO,
+      "PRINT" -> PRINT,
       "WEND" -> WEND
     )
   }

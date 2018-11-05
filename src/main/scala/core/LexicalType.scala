@@ -38,5 +38,6 @@ case object RP extends LexicalType
 case object COMMA extends LexicalType
 case object LOOP extends LexicalType
 case object TO extends LexicalType
+case object PRINT extends LexicalType
 case object WEND extends LexicalType
 case object EOF extends LexicalType

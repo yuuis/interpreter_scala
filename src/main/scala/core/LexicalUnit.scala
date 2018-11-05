@@ -5,8 +5,8 @@ class LexicalUnit(val lexicalType: LexicalType, val value: Option[Value]) {
   def this(lexicalType: Option[LexicalType]) {
     this(lexicalType.get, None)
   }
-  def getType: Option[Value] = return value
-  def getValue: LexicalType = return lexicalType
+  def getType: LexicalType = return lexicalType
+  def getValue: Option[Value] = return value
 
   override def toString(): String = {
     lexicalType match {
@@ -31,6 +31,7 @@ class LexicalUnit(val lexicalType: LexicalType, val value: Option[Value]) {
       case GT => "GT"
       case LE => "LE"
       case GE => "GE"
+      case DO => "DO"
       case DOT => "DOT"
       case WHILE => "WHILE"
       case UNTIL => "UNTIL"
@@ -42,6 +43,7 @@ class LexicalUnit(val lexicalType: LexicalType, val value: Option[Value]) {
       case COMMA => "COMMA"
       case LOOP => "LOOP"
       case TO => "TO"
+      case PRINT => "PRINT"
       case WEND => "WEND"
       case ELSEIF => "ELSEIF"
       case NE => "NE"
