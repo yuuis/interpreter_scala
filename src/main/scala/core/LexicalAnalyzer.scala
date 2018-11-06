@@ -40,6 +40,8 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
       val ci = reader.read()
       val c = ci.toChar
 
+      if(ci < 0) break()
+
       c match {
         case a if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0'  && c <= '9')) => target += c
         case _ =>
@@ -59,6 +61,8 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
     breakable( for(i <- 1 to 100) {
       val ci = reader.read()
       val c = ci.toChar
+
+      if(ci < 0) break()
 
       c match {
         case n if(c >= '0' && c <= '9') => target += c
@@ -80,6 +84,8 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
       val ci = reader.read
       val c = ci.toChar
 
+      if(ci < 0) throw new Exception("syntax error")
+
       c match {
         case '"' => break()
         case _ => target += c
@@ -92,6 +98,8 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
     var target = c.toString
     val ci = reader.read()
     val next = ci.toChar
+
+    if(ci < 0) new LexicalUnit(Symbol.map.get(target))
 
     c match {
       case '<' =>
