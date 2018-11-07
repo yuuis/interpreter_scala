@@ -16,19 +16,19 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
 
   def get(): LexicalUnit = {
     val ci = reader.read()
+    reader.unread(ci)
     if(ci < 0 || ci == 65535) new LexicalUnit(EOF, None)
     else {
       val c = ci.toChar
       c match {
-        case u if(c == ' ' || c == '\t') => get()
-        case a if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z')) =>
-          reader.unread(ci)
-          return getString()
-        case n if(c >= '0' && c <= '9') =>
-          reader.unread(ci)
-          return getNumber()
+        case u if(c == ' ' || c == '\t') => {
+          reader.read()
+          get()
+        }
+        case a if((c >= 'a' && c<= 'z') || (c >= 'A' && c <= 'Z')) => return getString()
+        case n if(c >= '0' && c <= '9') => return getNumber()
         case l if(c == '"') => return getLiteral()
-        case s if(Symbol.map.get(c.toString).nonEmpty) => return getSymbol(s)
+        case s if(Symbol.map.get(c.toString).nonEmpty) => return getSymbol()
       }
     }
   }
@@ -50,7 +50,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
       }
     })
     ReservedWord.map.get(target).fold(new LexicalUnit(NAME, Some(new ValueImpl(target))))( word =>
-      new LexicalUnit(word, None)
+      word
     )
   }
 
@@ -69,7 +69,7 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
         case '.' if(!decimalFlag) =>
           decimalFlag = true
           target += c
-        case '.' if(decimalFlag) => throw new Exception("syntax error")
+        case '.' if(decimalFlag) => throw new Exception("found too many dots")
         case _ => break()
       }
     })
@@ -79,12 +79,15 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
 
   private def getLiteral(): LexicalUnit = {
     var target = ""
+    reader.read()
 
     breakable( for(i <- 1 to 100) {
       val ci = reader.read
+
+      if(ci < 0) break()
       val c = ci.toChar
 
-      if(ci < 0) throw new Exception("syntax error")
+      if(ci < 0) throw new Exception("cant find closing double quote")
 
       c match {
         case '"' => break()
@@ -94,74 +97,66 @@ class LexicalAnalyzerImpl(val reader: PushbackReader) extends LexicalAnalyzer {
     new LexicalUnit(LITERAL, Some(new ValueImpl(target)))
   }
 
-  private def getSymbol(c: Char): LexicalUnit = {
-    var target = c.toString
-    val ci = reader.read()
-    val next = ci.toChar
+  private def getSymbol(): LexicalUnit = {
+    var target = ""
 
-    if(ci < 0) new LexicalUnit(Symbol.map.get(target))
+    breakable( for(i <- 1 to 100) {
+      val ci = reader.read()
 
-    c match {
-      case '<' =>
-        if(next == '=' || next == '>') target += next
-        else reader.unread(ci)
-        new LexicalUnit(Symbol.map.get(target))
-      case '>' =>
-        if(next == '=') target += next
-        else reader.unread(ci)
-        new LexicalUnit(Symbol.map.get(target))
-      case '=' =>
-        if (next == '<' || next == '>') target += next
-        else reader.unread(ci)
-        new LexicalUnit(Symbol.map.get(target))
-      case _ =>
+      if(ci < 0) return Symbol.map.get(target).get
+      val c = ci.toChar
+
+      if(Symbol.map.get(target + c).nonEmpty) target += c
+      else {
         reader.unread(ci)
-        new LexicalUnit(Symbol.map.get(target))
-    }
+        break()
+      }
+    })
+    return Symbol.map.get(target).get
   }
 
   private object ReservedWord {
     val map = Map(
-      "IF" -> IF,
-      "THEN" -> THEN,
-      "ELSE" -> ELSE,
-      "ELSEIF" -> ELSEIF,
-      "FOR" -> FOR,
-      "FORALL" -> FORALL,
-      "NEXT" -> NEXT,
-      "SUB" -> FUNC,
-      "DIM" -> DIM,
-      "AS" -> AS,
-      "END" -> END,
-      "WHILE" -> WHILE,
-      "DO" -> DO,
-      "UNTIL" -> UNTIL,
-      "LOOP" -> LOOP,
-      "TO" -> TO,
-      "PRINT" -> PRINT,
-      "WEND" -> WEND
+      "IF" -> new LexicalUnit(IF, None),
+      "THEN" -> new LexicalUnit(THEN, None),
+      "ELSE" -> new LexicalUnit(ELSE, None),
+      "ELSEIF" -> new LexicalUnit(ELSEIF, None),
+      "FOR" -> new LexicalUnit(FOR, None),
+      "FORALL" -> new LexicalUnit(FORALL, None),
+      "NEXT" -> new LexicalUnit(NEXT, None),
+      "SUB" -> new LexicalUnit(FUNC, None),
+      "DIM" -> new LexicalUnit(DIM, None),
+      "AS" -> new LexicalUnit(AS, None),
+      "END" -> new LexicalUnit(END, None),
+      "WHILE" -> new LexicalUnit(WHILE, None),
+      "DO" -> new LexicalUnit(DO, None),
+      "UNTIL" -> new LexicalUnit(UNTIL, None),
+      "LOOP" -> new LexicalUnit(LOOP, None),
+      "TO" -> new LexicalUnit(TO, None),
+      "PRINT" -> new LexicalUnit(PRINT, None),
+      "WEND" -> new LexicalUnit(WEND, None)
     )
   }
 
   private object Symbol {
     val map = Map(
-      "=" -> EQ,
-      "<" -> LT,
-      ">" -> GT,
-      "<=" -> LE,
-      "=<" -> LE,
-      ">=" -> GE,
-      "=>" -> GE,
-      "<>" -> NE,
-      "." -> DOT,
-      "+" -> ADD,
-      "-" -> SUB,
-      "*" -> MUL,
-      "/" -> DIV,
-      ")" -> LP,
-      "(" -> RP,
-      "," -> COMMA,
-      "\n" -> NL
+      "=" -> new LexicalUnit(EQ, None),
+      "<" -> new LexicalUnit(LT, None),
+      ">" -> new LexicalUnit(GT, None),
+      "<=" -> new LexicalUnit(LE, None),
+      "=<" -> new LexicalUnit(LE, None),
+      ">=" -> new LexicalUnit(GE, None),
+      "=>" -> new LexicalUnit(GE, None),
+      "<>" -> new LexicalUnit(NE, None),
+      "." -> new LexicalUnit(DOT, None),
+      "+" -> new LexicalUnit(ADD, None),
+      "-" -> new LexicalUnit(SUB, None),
+      "*" -> new LexicalUnit(MUL, None),
+      "/" -> new LexicalUnit(DIV, None),
+      ")" -> new LexicalUnit(LP, None),
+      "(" -> new LexicalUnit(RP, None),
+      "," -> new LexicalUnit(COMMA, None),
+      "\n" -> new LexicalUnit(NL, None)
     )
   }
 
