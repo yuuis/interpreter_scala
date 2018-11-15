@@ -5,8 +5,8 @@ class LexicalUnit(val lexicalType: LexicalType, val value: Option[Value]) {
   def this(lexicalType: Option[LexicalType]) {
     this(lexicalType.get, None)
   }
-  def getType: LexicalType = return lexicalType
-  def getValue: Option[Value] = return value
+  def getType: LexicalType = lexicalType
+  def getValue: Option[Value] = value
 
   override def toString(): String = {
     lexicalType match {
